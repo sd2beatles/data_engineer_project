@@ -1,3 +1,5 @@
+
+```python
 import os
 import sys
 import urllib.request
@@ -121,3 +123,4 @@ if __name__=='__main__':
     for start_index in range(start,blog_count+1,display):
         get_blog_post(query,display,start_index,sort)
     fs.close()
+```
