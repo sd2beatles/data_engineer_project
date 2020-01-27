@@ -1,4 +1,3 @@
-
 ```python
 import os
 import sys
@@ -71,10 +70,10 @@ def get_blog_post(query,display,start_index,sort):
                 title=re.sub(remove_html_tag,'',response_body_dict['items'][item_index]['title'])
                 #filter out unnecessary letters
                 link=response_body_dict['items'][item_index]['link'].replace('amp;','')
-                description=re.sub(remove_html_tag,'',response_body_dict['itmes'][item_index]['description'])
+                description=re.sub(remove_html_tag,'',response_body_dict['items'][item_index]['description'])
                 blogger_name=response_body_dict['items'][item_index]['bloggername']
                 blogger_link=response_body_dict['items'][item_index]['bloggerlink']
-                post_date=response_body_dict['itmes'][item_index]['postedate']
+                post_date=response_body_dict['items'][item_index]['postdate']
                 no+=1
                 print("-"*100)
                 print("#"+str(no))
@@ -84,7 +83,7 @@ def get_blog_post(query,display,start_index,sort):
                 print("Blogger_name:"+blogger_name)
                 print("Bloggger_link:"+blogger_link)
                 print("Post Date:"+post_date)
-
+                
                 #now we are ready to obtain the content posted on each blog_count
                 post_code=requests.get(link)
                 post_text=post_code.text
@@ -103,11 +102,9 @@ def get_blog_post(query,display,start_index,sort):
                         blog_post_full_contents=blog_post_full_contents.replace('\n\n','\n')
                         fs.write(blog_post_full_contents+"\n")
                         fs.write('--'*100)
-
-
             except:
                 item_index+=1
-
+            
 if __name__=='__main__':
     no=0
     #fllowings are request pareameters
@@ -123,4 +120,4 @@ if __name__=='__main__':
     for start_index in range(start,blog_count+1,display):
         get_blog_post(query,display,start_index,sort)
     fs.close()
-```
+ ```
