@@ -28,40 +28,25 @@ SET client_encoding TO
 ``` 
 
 ```python
-
-
+#Connect to internal database
+client_id="161975af6e9c43eaa63de06b51331fdb"
+client_secrets="ed8c9f468c924254aa2d2459246acba0"
 
 
 def main():
-    con=psycopg2.connect(
-      host='localhost',
-      database='postgres',
-      user='postgres',
-      password=1234,
-      port=5432)
-    cursor=con.cursor()
-    print(cursor.execute('select 1;'))
-    sys.exit(0)
     try:
-        con=psycopg2.connect(
-          host='localhost',
-          database='postgres',
-          user='postgres',
-          password=1234,
-          port=5432)
-        cursor=con.cursor()
-
+        conn = ppg2.connect("host = localhost dbname=postgres user=postgres password=1234 port=5432")
+        conn.autocommit = True
+        cursor=conn.cursor()
     except:
-        logging.error("Can not access to RDS")
+        logging.error('can not access')
         exit(1)
-
-
 
     headers=get_headers(client_id,client_secrets)
     params={
         "q":"BTS",
         "type":"artist",
-        "limit":1
+        "limit":4
     }
 
     r=requests.get("https://api.spotify.com/v1/search",params=params,headers=headers)
@@ -87,50 +72,35 @@ def main():
         artist={
         'id':artist_raw['id'],
         'name':artist_raw['name'],
-        'followers':artist_raw['followers']['total'],
+        'follower':artist_raw['followers']['total'],
         'popularity':artist_raw['popularity'],
         'url':artist_raw['external_urls']['spotify'],
         'image_url':artist_raw['images'][0]['url']
         }
+
+
+    def insert_row(cursor,data,table,primary_key):
+        #assert type(data)==dict
+        placeholder=','.join(['%s']*len(data)) #equailvalent to ('{}','{}','{}','{}','{}','{}')
+        #make sure that you have to match the keys to columns of table, otherwise causing errors.
+        columns=','.join(data.keys())
+        key_placeholders=','.join(['{0}={1}.{0}'.format(k,table) for k in data.keys()])
+        sql="INSERT INTO %s (%s) VALUES (%s) ON CONFLICT (%s) DO UPDATE SET %s" %(table,columns,placeholder,primary_key,key_placeholders)
+        cursor.execute(sql,list(data.values()))
+
+    '''
     query="""
-        INSERT INTO artists (id,name,follower,popularity,url,image_url)
-        VALUES('{}','{}','{}','{}','{}','{}')
-        ON CONFLICT (id) DO UPDATE SET id=artists.id,name=artists.name,follower=artists.follower,popularity=artists.popularity,url=artists.url,image_url=artists.image_url
-        """.format(
-        artist['id'],
-        artist['name'],
-        artist['followers'],
-        artist['popularity'],
-        artist['url'],
-        artist['image_url'])
-
-    cursor.execute(query)
-    sys.exit(0)
-
-    #you should set up the codes for the information you want
-    total=raw['total']
-    offset=raw['offset']
-    next=raw['next']
-
-
-    #create a list to store information on items
-    albums=[]
-    albums.extend(raw['items'])
-    #check out the number of albumns equal to 20
-    print(len(albums))
-
-    #if you want to store the alumbs up to a specifiy number
-    count=0
-    #note that raw['next'] returns none if url is not available.
-    #While loops still iterate over if cout is less than 100 and next is avilable
-    while count<100 and next:
-        r=requests.get(raw['next'],headers=headers)
-        raw=json.loads(r.text)
-        next=raw['next']
-        print(next)
-        albums.extend(raw['items'])
-        count=len(albums)
-    print(len(albums))
+    INSERT INTO artists (id,name,follower,popularity,url,image_url)
+    VALUES('{}','{}','{}','{}','{}','{}')
+    ON CONFLICT (id) DO UPDATE SET id=artists.id,name=artists.name,follower=artists.follower,popularity=artists.popularity,url=artists.url,image_url=artists.image_url
+    """.format(
+    artist['id'],
+    artist['name'],
+    artist['followers'],
+    artist['popularity'],
+    artist['url'],
+    artist['image_url'])
+    '''
 
 def get_headers(client_id,client_secrets):
     endpoint='https://accounts.spotify.com/api/token'
@@ -152,6 +122,4 @@ def get_headers(client_id,client_secrets):
 
 if __name__=='__main__':
     main()
-
-
 ```
