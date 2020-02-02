@@ -11,8 +11,6 @@ This lengthy code is all about a series of searching, collecting, and storing th
 
 
 
-![image](https://user-images.githubusercontent.com/53164959/73610971-6d028180-4620-11ea-847f-bae6a23304a4.png)
-
 ```python
 import psycopg2 as ppg2
 import json
