@@ -1,5 +1,8 @@
+# _Introduction_
 Let's crawl data on the most popular K-pop groups registered at the Spotify website. The lists of singers can be obtained from Tumblr in 2019.
 Since the site is an English-language site based in US, all the groups are selected based on the reputation in the country and reflect the American trends.
+
+# _Steps_
 
 ![image](https://user-images.githubusercontent.com/53164959/73644936-a76c2d00-46b9-11ea-8acb-9d2c26700bc8.png)
 
