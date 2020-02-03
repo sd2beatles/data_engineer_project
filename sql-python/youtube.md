@@ -3,8 +3,8 @@
 
 ![image](https://user-images.githubusercontent.com/53164959/73610919-e77ed180-461f-11ea-8569-2879b34a7ba9.png)
 
-Youtube is one of the biggest media intermediaries around the world. Thanks to its popularity, Korean entertainment has enjoyed 
-the unprecedented level of popularity in its history from almost every continent in this universal. 
+Youtube is one of the biggest media intermediaries around the world. Thanks to the widespread use, Korean entertainment has enjoyed 
+the unprecedented level of its popularity  in its history from almost every continent in this universal. 
 Its fame comes from Korean Pop so-called K-pop. This Asian culture  has wholly engrossed many western countries into this industry. 
 To see the influence of this 'culture invasion on the U.S.A, I decided to collect some data from youtube API.  
 This lengthy code is all about a series of searching, collecting, and storing the data into a table. 
