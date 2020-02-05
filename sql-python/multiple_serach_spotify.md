@@ -1,3 +1,16 @@
+## Introduction 
+
+Let's visit the following website and import the data as text format. 
+
+'https://github.com/fivethirtyeight/data/blob/master/classic-rock/classic-rock-song-list.csv
+
+
+![image](https://user-images.githubusercontent.com/53164959/73843138-631b9100-4861-11ea-80ce-eec4127e1e6b.png)
+
+The only column in which we are intrested is 'artist name' and we will retrieve the associated information for each artists from the s
+spotify API. The final result is to be stored as the separate file in csv format. 
+
+
 ```python
 import psycopg2 as ppg2
 import six
@@ -30,7 +43,8 @@ def main():
     data=load_data('artists.txt')
     data=data.iloc[:,:8]
     data.columns=['song','artist','release_year','combined','first','year','plycount','fg']
-    artist=data['artist']
+    #remove the duplicate artists
+    artist=data['artist'].unique()
     headers=get_headers(client_id,client_secret)
     url='https://api.spotify.com/v1/search'
     for a in artist:
@@ -68,6 +82,10 @@ def main():
         except:
             logging.error('No items from serach api')
             continue
+    fileName='artists.csv'
+    export_to_csv(cursor,fileName,'artists')
+
+
 
 def export_to_csv(cursor,fileName,tableName,filePath=None):
     assert type(fileName) ==str and type(tableName)==str
@@ -78,7 +96,7 @@ def export_to_csv(cursor,fileName,tableName,filePath=None):
         cursor.execute(sql)
         results=cursor.fetchall()
         headers=[i for i in cursor.description]
-        csvFile=csv.writer(open(filePath+fileName,'w',newline=''),delimiter=',',lineterminator='\r\n',escapechar='\\')
+        csvFile=csv.writer(open(filePath+fileName,'w',newline=''),encoding='utf-8',delimiter=',',lineterminator='\r\n',escapechar='\\')
         #Add the headers and data to the csv fileName
         csvFile.writerow(headers)
         csvFile.writerows(results)
@@ -133,4 +151,6 @@ def get_headers(client_id,client_secret):
 
 if __name__=='__main__':
     main()
+
+
 ```
