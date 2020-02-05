@@ -28,9 +28,8 @@ import csv
 import pathlib
 
 
-client_id="161975af6e9c43eaa63de06b51331fdb"
-client_secret="ed8c9f468c924254aa2d2459246acba0"
-host='https://github.com/fivethirtyeight/data/blob/master/classic-rock/classic-rock-song-list.csv'
+client_id="replace me"
+client_secret="replace me"
 
 def main():
     try:
