@@ -96,7 +96,7 @@ def export_to_csv(cursor,fileName,tableName,filePath=None):
         cursor.execute(sql)
         results=cursor.fetchall()
         headers=[i for i in cursor.description]
-        csvFile=csv.writer(open(filePath+fileName,'w',newline=''),encoding='utf-8',delimiter=',',lineterminator='\r\n',escapechar='\\')
+        csvFile=csv.writer(open(filePath+fileName,'w',newline='',encoding='utf-8'),delimiter=',',lineterminator='\r\n',escapechar='\\')
         #Add the headers and data to the csv fileName
         csvFile.writerow(headers)
         csvFile.writerows(results)
