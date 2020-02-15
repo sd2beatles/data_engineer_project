@@ -161,7 +161,7 @@ if __name__=="__main__":
     main()
 ```
 
-Code on this secion is used when you decide to store the finanl data to dataBase in MySQL.
+Code on this secion is used when you decide to store the finanl data to dataBase in postgresql
 
 
 ```python
