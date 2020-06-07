@@ -43,7 +43,11 @@ Visit the following website https://developer.spotify.com/documentation/web-api/
 ![image](https://user-images.githubusercontent.com/53164959/83964443-2c758600-a8e8-11ea-9b48-04c47e7b635f.png)
 ![image](https://user-images.githubusercontent.com/53164959/83964464-4adb8180-a8e8-11ea-99ca-c65a16808418.png)
 
-end point 즉 url이 
+end point는 지금 url이고, 이번에는  get을 사용해야한다. 
+![image](https://user-images.githubusercontent.com/53164959/83965356-1bc80e80-a8ee-11ea-9ca2-d58148e1636d.png)
+
+step1){'Authorization':'Barer {}'.format(access_token)} 는 requests.get의 header(-h)로 입력
+setp2)그러나 Fields Reference 값들은 현재 -알파벳이 없으므로, dict에 값을 집어넣고, requests.get(params=)집어넣는다. 
 
 
 
