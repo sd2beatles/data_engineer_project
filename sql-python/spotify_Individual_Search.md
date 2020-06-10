@@ -28,94 +28,91 @@ SET client_encoding TO
 ``` 
 
 ```python
-import psycopg2 as ppg2
-import six
-import json
-import os
-import sys
-import time
-import requests
-import six
-import six.moves.urllib.parse as urllibparse
-import base64
-import logging
-import pandas as pd
+client_id='161975af6e9c43eaa63de06b51331fdb'
+client_secret='5c707c00e6de4441a82d142e74dfaa5a'
 
-client_id="161975af6e9c43eaa63de06b51331fdb"
-client_secret="ed8c9f468c924254aa2d2459246acba0"
+def get_headers(clien_id,client_secret):
+   encoded=base64.b64encode("{}:{}".format(client_id,client_secret).encode('utf-8')).decode('ascii')
+   header={"Authorization":"Basic {}".format(encoded)}
+   return header
 
-
+class spotfiySearch(object):
+    
+    def __init__(self,client_id,client_secret,artists,cursor):
+        self.client_id=client_id
+        self.client_secret=client_secret
+        #to avoid having the same artists in the list
+        if artists!=None:
+            unique_artists=set(artists)
+            if len(artists)==len(unique_artists):
+                self.artists=artists
+            else:
+                self.artists=unique_artists
+        self.cursor=cursor
+   
+    def get_accessToken(self):
+        headers=get_headers(self.client_id,self.client_secret)
+        payload={"grant_type":"client_credentials"}
+        url=' https://accounts.spotify.com/api/token'
+        r=requests.post(url,headers=headers,data=payload)
+        raw=r.json()['access_token']
+        return raw
+    
+    def get_artists_save(self,tb_name): #tb_name indicates the table name
+        access_token=self.get_accessToken()
+        headers={'Authorization':'Bearer {}'.format(access_token)}
+        for a in self.artists:
+            params={
+                'q':a,
+                'type':'artist',
+                'limit':'1'}
+            r=requests.get("https://api.spotify.com/v1/search",params=params,
+                           headers=headers)
+            if r.status_code==429:
+                retry=json.loads(r.headers)['Retry-After']
+                time.sleep(int(retry))
+                r=requests.get("https://api.spotify.com/v1/search",params=params,
+                           headers=params)
+            elif r.status_code==401:
+                headers=get_headers(self.client_id,self.client_secrets)
+                r=requests.get("https://api.spotify.com/v1/search",params=params,headers=headers)
+           
+            raw=json.loads(r.text)
+            artist={}
+            try:
+                artist_raw=raw['artists']['items'][0]
+                artist.update({
+                    'id':artist_raw['id'],
+                    'name':artist_raw['name'],
+                    'followers':artist_raw['followers']['total'],
+                    'popularity':artist_raw['popularity'],
+                    'genres':str(artist_raw['genres'])})
+            except:
+                logging.error('No infomration of the artist is found')
+                continue
+            placeholder=','.join(['%s']*len(artist))
+            columns=','.join(artist.keys())
+            sql="insert into %s (%s) values (%s)" %('artists',columns,placeholder)
+            self.cursor.execute(sql,list(artist.values()))
+    
+        
+    sdf
+            
+            
 def main():
+    artists=['BTS']
     try:
-        conn_string = "host='localhost' dbname ='postgres' user='postgres' password=1234 port=5432"
-        conn = ppg2.connect(conn_string)
+        conn=pymysql.connect(host='localhost',user='root',port=3306,db='production',passwd='1234',charset='utf8')
         cursor=conn.cursor()
     except:
-        logging.error('can not acces the db')
-        sys.exit(1)
-
-    headers=get_headers(client_id,client_secret)
-    params={
-        "q":"BTS",
-        "type":"artist",
-        "limit":4
-    }
-
-    r=requests.get("https://api.spotify.com/v1/search",params=params,headers=headers)
-    if r.status_code!=200:
-        logging.error(r.text)
-        if r.status_code==429:
-            retry=json.loads(r.headers)['Retry-After']
-            time.sleep(int(retry))
-            r=requests.get("https://api.spotify.com/v1/search",params=params,headers=headers)
-        elif r.status_code==401:
-            headers=get_headers(client_id,client_secrets)
-            r=requests.get("https://api.spotify.com/v1/search",params=params,headers=headers)
-        else:
-            sys.exit(1)
-
-    raw=json.loads(r.text)
-    artist_raw=raw['artists']['items']
-    for index in artist_raw:
-            artists={
-                'id':index['id'],
-                'name':index['name'],
-                'followers':index['followers']['total'],
-                'popularity':index['popularity'],
-                'url':index['external_urls']['spotify'],
-                }
-            insert_values(cursor,artists,table='artists',primary_key='id')
-    cursor.execute('SELECT * FROM artists')
-    result=cursor.fetchall()
-    your_dataframe=pd.DataFrame(result)
-
-
-
-
-def insert_values(cursor,data,table,primary_key):
-    placeholder=','.join(['%s']*len(data))
-    columns=','.join(data.keys())
-    key_placeholder=','.join(['{0}={1}.{0}'.format(k,table) for k in data.keys()])
-    sql="""
-    INSERT INTO %s (%s)
-    VALUES (%s)
-    """ %(table,columns,placeholder)
-    cursor.execute(sql,list(data.values()))
-
-
-def get_headers(client_id,client_secret):
-    assert type(client_id)==str and type(client_secret)==str
-    end_point='https://accounts.spotify.com/api/token'
-    payload={'grant_type':'client_credentials'}
-    encoded=base64.b64encode('{}:{}'.format(client_id,client_secret).encode('utf-8')).decode('ascii')
-    header={"Authorization":"Basic {}".format(encoded)}
-    r=requests.post(end_point,data=payload,headers=header)
-    access_token=json.loads(r.text)['access_token']
-    headers={'Authorization':"Bearer {}".format(access_token)}
-    return headers
-
-if __name__=="__main__":
+        logging.error('Connection failed')
+    spotfiySearch(client_id,client_secret,artists,cursor).get_artists_save(tb_name='artists')
+    conn.commit()
+    
+    
+if __name__=='__main__':
     main()
+
 
 
 ```
